@@ -1,5 +1,9 @@
 Revision history for Module::Used.
 
+1.3.0  2012-09-27
+
+    New modules_used_by_modules(), thanks to Neil Bowers.
+
 1.2.0  2008-12-08
 
     Case-insensitive sort.

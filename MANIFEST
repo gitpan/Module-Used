@@ -18,3 +18,4 @@ xt/author/pod_coverage.t
 xt/author/pod_syntax.t
 xt/author/README
 META.yml
+META.json

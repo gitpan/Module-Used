@@ -5,8 +5,6 @@ use utf8;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('v1.1.0');
-
 use Test::More tests => 1;
 
 use_ok('Module::Used') or BAIL_OUT('No point in continuing.');

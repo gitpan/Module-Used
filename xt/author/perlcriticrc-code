@@ -19,6 +19,8 @@ verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n
 [Documentation::PodSpelling]
 stop_words = PPI regex subclasses
 
+[-Documentation::RequirePodLinksIncludeText]
+
 [Documentation::RequirePodSections]
 source   = module_starter_pbp_0_0_3
 language = en_US

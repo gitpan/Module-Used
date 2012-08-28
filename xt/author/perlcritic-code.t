@@ -5,8 +5,6 @@ use utf8;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('v1.1.0');
-
 use Test::Perl::Critic (
     -severity => 1,
     -profile => 'xt/author/perlcriticrc-code'

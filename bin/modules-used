@@ -6,16 +6,16 @@ use 5.008003;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('v1.2.0');
+use version; our $VERSION = qv('v1.3.0');
 
+use Const::Fast qw< const >;
 use English qw< -no_match_vars >;
-use Readonly;
 
 use File::Next ();
 
 use Module::Used qw< modules_used_in_files >;
 
-Readonly my %IGNORED_DIRECTORIES =>
+const my %IGNORED_DIRECTORIES =>
     map { $_ => 1 }
     qw<
         .bzr
@@ -79,7 +79,7 @@ sub _get_files {
 sub _is_ignored_directory {
     my ($directory) = @_;
 
-    return 1 if $IGNORED_DIRECTORIES{$directory};
+    return 1 if exists $IGNORED_DIRECTORIES{$directory};
     return 0;
 }
 
@@ -87,15 +87,15 @@ sub _is_ignored_file {
     my ($file) = @_;
 
     return 1 if $file =~ qr< (?: [.] bak | ~ ) \z >xms;
-    return 1 if $file =~ qr< [#] .+ [#] \z       >xms;
-    return 1 if $file =~ qr< [._] .* \.swp \z    >xms;
-    return $file =~ qr< core [.] \d+ \z      >xms;
+    return 1 if $file =~ qr< [#] .+ [#] \z        >xms;
+    return 1 if $file =~ qr< [._] .* [.]sw[op] \z >xms;
+    return $file =~ qr< core [.] \d+ \z           >xms;
 }
 
 sub _is_perl_file {
     my ($file) = @_;
 
-    return 1 if $file =~ m/ [.] (?: p (?: l x? | m ) | t | PL ) \z /xms; ## no critic (ProhibitSingleCharAlternation)
+    return 1 if $file =~ m/ [.] (?: p (?: l x? | m ) | t | PL ) \z /xms;
     return 0 if index($file, q<.>) >= 0;
     return _is_perl_program($file);
 }
@@ -129,7 +129,7 @@ modules-used - List modules used by a set of Perl source files without running t
 
 =head1 VERSION
 
-This document describes modules-used version 1.2.0.
+This document describes modules-used version 1.3.0.
 
 
 =head1 USAGE
@@ -166,6 +166,12 @@ None.
 =head1 DIAGNOSTICS
 
 =over
+
+=item Could not find module "%s" in @INC.
+
+Cannot find the location of the named module.  Note that this program will not
+find any dynamically loaded modules.
+
 
 =item "%s" does not exist.
 
@@ -209,9 +215,8 @@ None known.
 
 None reported.
 
-Please report any bugs or feature requests to
-C<bug-module-used@rt.cpan.org>, or through the web
-interface at L<http://rt.cpan.org>.
+Please report any bugs or feature requests to C<bug-module-used@rt.cpan.org>,
+or through the web interface at L<http://rt.cpan.org>.
 
 
 =head1 SEE ALSO
@@ -229,8 +234,7 @@ Elliot Shank C<< <perl@galumph.com> >>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright ©2008, Elliot Shank C<< <perl@galumph.com> >>. All
-rights reserved.
+Copyright ©2008-2012, Elliot Shank C<< <perl@galumph.com> >>.
 
 This module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>.

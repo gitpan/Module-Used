@@ -9,17 +9,15 @@ use utf8;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('v1.1.0');
-
+use Const::Fast qw< const >;
 use File::Find;
 use File::Slurp;
-use Readonly;
 
 use Test::More qw(no_plan); ## no critic (Bangs::ProhibitNoPlan)
 
 
-Readonly my $LOCALTIME_YEAR_FIELD_NUMBER => 5;
-Readonly my $LOCALTIME_YEAR_OFFSET       => 1900;
+const my $LOCALTIME_YEAR_FIELD_NUMBER => 5;
+const my $LOCALTIME_YEAR_OFFSET       => 1900;
 
 
 my $this_year =

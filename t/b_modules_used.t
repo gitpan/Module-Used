@@ -5,12 +5,10 @@ use utf8;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('v1.1.0');
-
-use Module::Used qw< modules_used_in_string modules_used_in_files >;
+use Module::Used qw< modules_used_in_string modules_used_in_files modules_used_in_modules >;
 
 use Test::Deep qw< bag cmp_deeply >;
-use Test::More tests => 21;
+use Test::More tests => 22;
 
 
 {
@@ -72,6 +70,24 @@ use Test::More tests => 21;
         $code,
     );
 
+    cmp_deeply(
+        [ modules_used_in_modules( 'Module::Used' ) ],
+        bag(
+            qw<
+                Const::Fast
+                English
+                Exporter
+                Module::Path
+                PPI::Document
+                strict
+                utf8
+                version
+                warnings
+            >
+        ),
+        'Module::Used',
+    );
+
 
     $code = q<use base 'A', "B", q[C], qq[D::E];>;
     cmp_deeply(
@@ -99,7 +115,7 @@ use Test::More tests => 21;
 
     cmp_deeply(
         [ modules_used_in_files( __FILE__ ) ],
-        bag( qw< utf8 strict warnings version Module::Used Test::Deep Test::More > ),
+        bag( qw< utf8 strict warnings Module::Used Test::Deep Test::More > ),
         $code,
     );
 

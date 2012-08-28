@@ -6,23 +6,25 @@ use utf8;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('v1.2.0');
+use version; our $VERSION = qv('v1.3.0');
 
-use English qw<-no_match_vars>;
-use Readonly;
+use English qw< -no_match_vars >;
+use Const::Fast qw< const >;
 
 use Exporter qw< import >;
 
-our @EXPORT_OK =
-    qw<
-        modules_used_in_files
-        modules_used_in_string
-        modules_used_in_document
-    >;
+our @EXPORT_OK = qw<
+    modules_used_in_files
+    modules_used_in_string
+    modules_used_in_document
+    modules_used_in_modules
+>;
 our %EXPORT_TAGS    = (
     all => [@EXPORT_OK],
 );
 
+
+use Module::Path qw< module_path >;
 use PPI::Document ();
 
 
@@ -39,6 +41,22 @@ sub modules_used_in_files {
 
     return keys %modules;
 } # end modules_used_in_files()
+
+
+sub modules_used_in_modules {
+    my (@modules)   = @_;
+    my @files;
+    my $fullpath;
+
+    foreach my $module (@modules) {
+        $fullpath = module_path($module)
+            or die qq<Could not find module "$module" in \@INC.\n>;
+
+        push @files, $fullpath;
+    }
+
+    return modules_used_in_files(@files);
+} # end modules_used_in_modules()
 
 
 sub modules_used_in_string {
@@ -114,7 +132,7 @@ sub _create_document_from_file {
 } # end _create_document_from_file()
 
 
-Readonly::Scalar my $QUOTE_WORDS_DELIMITER_OFFSET => length 'qw<';
+const my $QUOTE_WORDS_DELIMITER_OFFSET => length 'qw<';
 
 sub _modules_loaded_by_base_or_parent {
     my ($statement) = @_;
@@ -135,24 +153,12 @@ sub _modules_loaded_by_base_or_parent {
         if ( $child->isa('PPI::Token::Quote') ) {
             push @modules, $child->string();
         } elsif ( $child->isa('PPI::Token::QuoteLike::Words') ) {
-            push @modules, _quotelike_words_literal($child);
+            push @modules, $child->literal();
         } # end if
     } # end foreach
 
     return @modules;
 } # end _modules_loaded_by_base_or_parent()
-
-
-# Delete this once next PPI version is released.
-sub _quotelike_words_literal {
-    my ($quotelike_words) = @_;
-
-    my $content = $quotelike_words->content();
-
-    $content = substr $content, $QUOTE_WORDS_DELIMITER_OFFSET;
-    chop $content;
-    return split q< >, $content;
-} # end _quotelike_words_literal()
 
 
 sub _modules_loaded_by_moose_sugar {
@@ -171,7 +177,7 @@ sub _modules_loaded_by_moose_sugar {
             if ( $child->isa('PPI::Token::Quote') ) {
                 push @modules, $child->string();
             } elsif ( $child->isa('PPI::Token::QuoteLike::Words') ) {
-                push @modules, _quotelike_words_literal($child);
+                push @modules, $child->literal();
             } # end if
         } # end foreach
     } # end foreach
@@ -215,7 +221,7 @@ Module::Used - Find modules loaded by Perl code without running it.
 
 =head1 VERSION
 
-This document describes Module::Used version 1.2.0.
+This document describes Module::Used version 1.3.0.
 
 
 =head1 SYNOPSIS
@@ -223,6 +229,7 @@ This document describes Module::Used version 1.2.0.
     use Module::Used qw< :all >;
 
     @modules = modules_used_in_files(@files);
+    @modules = modules_used_in_modules(@module_names);
 
     # "strict", "Find::Bin", "warnings"
     @modules = modules_used_in_string(
@@ -258,6 +265,12 @@ Return a list of modules used in the specified files.
 
 C<die>s if there is a problem reading a file.
 
+=item C< modules_used_in_modules( @module_names ) >
+
+Return a list of modules used in the specified modules.
+
+C<die>s if there any of the modules weren't found in C<@INC>.
+
 
 =item C< modules_used_in_string( $string ) >
 
@@ -275,6 +288,12 @@ Return a list of modules used in the specified L<PPI::Document>.
 =head1 DIAGNOSTICS
 
 =over
+
+=item Could not find module "%s" in @INC.
+
+Cannot find the location of the named module.  Note that this module will not
+find any dynamically loaded modules.
+
 
 =item "%s" does not exist.
 
@@ -306,7 +325,10 @@ None, currently.
 
 =head1 DEPENDENCIES
 
+L<Const::Fast>
+L<Module::Path>
 L<PPI::Document>
+L<version>
 
 
 =head1 INCOMPATIBILITIES
@@ -337,7 +359,7 @@ Elliot Shank C<< <perl@galumph.com> >>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright ©2008, Elliot Shank C<< <perl@galumph.com> >>. All rights reserved.
+Copyright ©2008-2012, Elliot Shank C<< <perl@galumph.com> >>.
 
 This module is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself. See L<perlartistic>.

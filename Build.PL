@@ -34,14 +34,6 @@ my $class = Module::Build->subclass( code => <<'END_SUBCLASS' );
         return;
     } # end ACTION_authortest()
 
-    sub ACTION_distdir {
-        my ($self) = @_;
-
-        $self->depends_on('authortest');
-
-        return $self->SUPER::ACTION_distdir();
-    } # end ACTION_distdir
-
 END_SUBCLASS
 
 my $builder = $class->new(
@@ -59,11 +51,12 @@ my $builder = $class->new(
     },
 
     requires            => {
+        'Const::Fast'       => 0,
         'English'           => 0,
         'Exporter'          => 5.57,
         'File::Next'        => 1.02,
-        'PPI::Document'     => 1.203,
-        'Readonly'          => 1.03,
+        'Module::Path'      => 0.01,
+        'PPI::Document'     => 1.205,
         'strict'            => 0,
         'utf8'              => 0,
         'version'           => 0.74,
@@ -96,6 +89,7 @@ my $builder = $class->new(
         qw<
             MANIFEST
             MANIFEST.bak
+            META.json
             META.yml
             Makefile
             Makefile.old
